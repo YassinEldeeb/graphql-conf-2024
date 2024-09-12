@@ -9,7 +9,29 @@ import {
   StyleSheet,
 } from 'react-native'
 
+const GET_BOXERS = gql`
+  {
+    users {
+      id
+      name
+      email
+      avatar
+      bio
+      favoriteCombo
+      trainingPartner {
+        name
+        favoriteCombo
+      }
+    }
+  }
+`
+
 const BoxersList = () => {
+  const { data, error, loading } = useQuery(GET_BOXERS)
+
+  if (loading) return <ActivityIndicator color={'red'} />
+  if (error) return <Text>{error.message}</Text>
+
   return (
     <ScrollView style={styles.container}>
       {data.users.map((boxer: any) => (
