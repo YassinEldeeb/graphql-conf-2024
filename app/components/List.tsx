@@ -1,5 +1,5 @@
-import { gql, useQuery } from '@apollo/client'
-import React from 'react'
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
 import {
   ScrollView,
   View,
@@ -8,8 +8,38 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native'
+import { useQuery } from 'react-query'
+
+const getBoxersList = async () => {
+  try {
+    const GET_BOXERS_LIST = `
+{users { id name email avatar bio favoriteCombo trainingPartner {name favoriteCombo}}}`
+
+    const response = await fetch('http://localhost:4000/graphql', {
+      body: JSON.stringify({ query: GET_BOXERS_LIST }),
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+    })
+
+    const json = await response.json()
+
+    return json.data
+  } catch (error) {
+    console.log('ERROR', error)
+  }
+}
 
 const BoxersList = () => {
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['boxers'],
+    queryFn: getBoxersList,
+  })
+
+  if (isLoading) return <ActivityIndicator color={'red'} />
+  if (error) return <Text>{error as any}</Text>
+
   return (
     <ScrollView style={styles.container}>
       {data.users.map((boxer: any) => (
